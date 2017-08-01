@@ -37,3 +37,8 @@ exports.compareHash = (attempted, stored, salt) => {
 exports.createRandom32String = () => {
   return crypto.randomBytes(32).toString('hex');
 };
+
+
+// USE THIS FILE TO CREATE OUR PASSWORDS TO BE STORED IN OUR DATABASE.
+
+// To use this, we will need to generate a 'salt' for each user, and then 

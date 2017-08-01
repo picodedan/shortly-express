@@ -1,10 +1,10 @@
 const express = require('express');
 const path = require('path');
-const utils = require('./lib/hashUtils');
+const utils = require('./lib/hashUtils');  // Not used by default, we have to use this...
 const partials = require('express-partials');
 const bodyParser = require('body-parser');
-const Auth = require('./middleware/auth');
-const models = require('./models');
+const Auth = require('./middleware/auth');  // Not used by default, we have to use this to build our Auth protocol
+const models = require('./models');  // These have tons of functions we may or may not have to use... TBD.
 
 const app = express();
 
@@ -16,16 +16,19 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, '../public')));
 
 
-
+// This will get us the root of the domain.
 app.get('/', 
 (req, res) => {
   res.render('index');
 });
-
+// This is the /create endpoint for the domain, this should send us to whatever page helps create a new link.  This takes to the page where there is a 'shorten' submit field that will shorten our URL.
 app.get('/create', 
 (req, res) => {
   res.render('index');
 });
+// Visiting this endpoint takes us to all of the current website that exist within the database.
+
+// Typing in a website's code on the base URL takes us directly to that website via a shortened link.
 
 app.get('/links', 
 (req, res, next) => {
@@ -78,6 +81,42 @@ app.post('/links',
 // Write your authentication routes here
 /************************************************************/
 
+//get method for user authentication 
+  //user supplied ID and password
+  //get user data +salt + stored hash
+  //return positive or negatve authentication result 
+    //possibly + cookie thingy 
+
+//post method for new user creation
+//app.post('/signup', )
+app.post('/signup', 
+(req, res) => {
+  models.Users.create(req.body)
+    .then(success => {
+      res.redirect('/');  
+    })
+    .catch(error => {
+      res.redirect('/signup');
+    });
+});
+
+app.post('/login',
+  (req, res) => {
+    let user = {
+      username: req.body.username
+    };
+    models.Users.get(user)
+    .then(user => {
+      if (models.Users.compare(req.body.password, user.password, user.salt)) {
+        res.redirect('/');
+      } else {
+        res.redirect('/login');
+      }
+    })
+    .catch(error => {
+      res.redirect('/login');
+    });
+  });
 
 
 /************************************************************/
