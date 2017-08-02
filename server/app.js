@@ -6,6 +6,7 @@ const bodyParser = require('body-parser');
 const Auth = require('./middleware/auth');  // Not used by default, we have to use this to build our Auth protocol
 const models = require('./models');  // These have tons of functions we may or may not have to use... TBD.
 
+
 const app = express();
 
 app.set('views', `${__dirname}/views`);
@@ -15,14 +16,16 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, '../public')));
 
+app.use(require('./middleware/cookieParser'));
+app.use(Auth.createSession);
 
 // This will get us the root of the domain.
-app.get('/', 
+app.get('/', Auth.verifySession, 
 (req, res) => {
   res.render('index');
 });
 // This is the /create endpoint for the domain, this should send us to whatever page helps create a new link.  This takes to the page where there is a 'shorten' submit field that will shorten our URL.
-app.get('/create', 
+app.get('/create', Auth.verifySession, 
 (req, res) => {
   res.render('index');
 });
@@ -30,7 +33,7 @@ app.get('/create',
 
 // Typing in a website's code on the base URL takes us directly to that website via a shortened link.
 
-app.get('/links', 
+app.get('/links', Auth.verifySession, 
 (req, res, next) => {
   models.Links.getAll()
     .then(links => {
@@ -41,7 +44,7 @@ app.get('/links',
     });
 });
 
-app.post('/links', 
+app.post('/links', Auth.verifySession, 
 (req, res, next) => {
   var url = req.body.url;
   if (!models.Links.isValidUrl(url)) {
@@ -93,6 +96,7 @@ app.post('/signup',
 (req, res) => {
   models.Users.create(req.body)
     .then(success => {
+      // Get the user id using success.in
       res.redirect('/');  
     })
     .catch(error => {
