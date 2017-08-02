@@ -92,6 +92,10 @@ app.post('/links', Auth.verifySession,
 
 //post method for new user creation
 //app.post('/signup', )
+app.get('/signup', (req, res) => {
+  res.render('signup');
+});
+
 app.post('/signup', 
 (req, res) => {
   models.Users.create(req.body)
@@ -102,6 +106,10 @@ app.post('/signup',
     .catch(error => {
       res.redirect('/signup');
     });
+});
+
+app.get('/login', (req, res) =>{
+  res.render('login');
 });
 
 app.post('/login',

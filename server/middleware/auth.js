@@ -82,6 +82,7 @@ module.exports.verifySession = function (req, res, next) {
   //verify users session 
   //take req obj
   if (!models.Sessions.isLoggedIn(req.session)) {
+    console.log(req.session);
     res.redirect('/login');
   } else {
     next();
